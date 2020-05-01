@@ -1,0 +1,9 @@
+---
+title: "Artist Models on Strike"
+date: 2008-12-15T13:30:38.3570000
+draft: false
+---
+
+<p class="MsoNormal" style="MARGIN: 0cm 0cm 10pt"><font face="Calibri" size="3">The models at Paris’ prestigious art school “Beaux Arts” intend to strike today over the mayor of Paris' decision to ban the tips that students pay to them. Traditionally at the end of the session, if the students liked the model because they sat still or because they inspired their imagination, they pay a small tip called “cornet”. The mayor of Paris has decided to bad this practice because it is paid directly to the model in cash and so not taxed and therefore “argent au noir”. This decision does seem a little mean given that the models are paid 12 euros an hour, just a little over the “simc” - France’s minimum wage.</font></p>
+<p class="MsoNormal" style="MARGIN: 0cm 0cm 10pt"><font face="Calibri" size="3">So the models will go on strike today, Monday 15<sup>th</sup> December 2008, between 2pm and 5pm they will pose nude in the cold winter streets of Paris, not to shock people they claim, but show what a tough job they do. If for any reason you are interested in seeing this protest it will be at 31 Rue des Francs Bourgeois, Metro St. Paul. I would of course like to go and show my support, but I got to work this afternoon.</font></p>
+<span style="FONT-SIZE: 11pt; LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Calibri&quot;,&quot;sans-serif&quot;; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA">For more information see <a href="http://www.bakchich.info/article6183.html">this news site</a> and this <a href="http://modelesdeparis.blogvie.com/2008/12/11/greve-des-modeles-15-decembre-2008/">blog post</a>, both in French.</span>

@@ -1,0 +1,17 @@
+---
+title: "TechEd Barcelona 2007 Video: Functional Programming Explained"
+date: 2008-02-21T18:04:30.8700000
+draft: false
+---
+
+<p class="MsoNormal" style="MARGIN: 0cm 0cm 10pt"><font face="Calibri" size="3">Been a while since I posted anything, but I do have a few new ideas forming so keep watching! For now you can see me being interviewed in this Video filmed at TechEd Barcelona 2007 <a href="http://www.virtualteched.com/pages/videos.aspx">“Functional Programming Explained”</a> (on the second page seems to be no way to do a direct link). I was very nervous before making the video and I think this show’s quite a bit at the beginning but I think I getting into my stride a bit more after a couple of questions. Having David McMahom as the interviewer really helped, he asked intelligent questions and was very laid back about the whole thing.</font></p>
+<p><span style="FONT-SIZE: 11pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Calibri','sans-serif'; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA">Towards the end of the video I do a demo of <a href="http://www.lexifi.com">LexiFi</a>’s, the company I work for, contract description language. If you are interested in learning a little more about this technology then have a look at <a href="http://research.microsoft.com/~simonpj/Papers/financial-contracts/contracts-icfp.htm">the paper by Jean-Marc Eber and Simon Peyton-Jones</a>.</span></p>
+<p><span style="FONT-SIZE: 11pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Calibri','sans-serif'; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA">Direct Video Link:<br />
+<font face="Arial"><a href="http://www.virtualteched.com/Videos/EU_1_rpickering_FB_100.asx">http://www.virtualteched.com/Videos/EU_1_rpickering_FB_100.asx</a> (Streaming)<br />
+<a href="http://www.virtualteched.com/Videos/EU_1_rpickering_FB_100.wmv">http://www.virtualteched.com/Videos/EU_1_rpickering_FB_100.wmv</a>  (WMV Format Low Res)<br />
+<a href="http://www.virtualteched.com/Videos/EU_1_rpickering_FB_300.wmv">http://www.virtualteched.com/Videos/EU_1_rpickering_FB_300.wmv</a>  (WMV Format Medium Res)<br />
+<a href="http://www.virtualteched.com/Videos/EU_1_rpickering_FB_500.wmv">http://www.virtualteched.com/Videos/EU_1_rpickering_FB_500.wmv</a>  (WMV Format High Res)<br />
+<a href="http://www.virtualteched.com/Videos/EU_1_rpickering_FB_500.mp4">http://www.virtualteched.com/Videos/EU_1_rpickering_FB_500.mp4</a>  (MP4 Format High Res)<br />
+</font></span></p>
+<p><span style="FONT-SIZE: 11pt; LINE-HEIGHT: 115%; FONT-FAMILY: 'Calibri','sans-serif'; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA">(EDIT: The interview was actually David McMahom not David Marlin as stated on the TechEd site)<br />
+</span></p>

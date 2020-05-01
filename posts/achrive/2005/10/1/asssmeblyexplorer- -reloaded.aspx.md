@@ -1,0 +1,13 @@
+---
+title: "AsssmeblyExplorer : Reloaded"
+date: 2005-10-01T12:38:00.0000000
+draft: false
+---
+
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><FONT size=2><FONT face=Verdana>I recently started measuring what gets downloaded and this made me noticed that my <A href="http://www.strangelights.com/fsharp/callgraph.aspx">AssemblyExplorer</A> tool is still very popular. I found this a little strange as its hopeless out of date. Also, why&nbsp;wouldn't you just use <A href="http://www.aisto.com/roeder/dotnet/">reflector</A>&nbsp;Anyway as it was popular I decided I&#8217;d revamp it, and sat down to do just that this morning. I successful completed the first stage of things, it now it works with the latest version of F# and AbsIl.<?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:office" /><o:p></o:p></FONT></FONT></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><o:p><FONT face=Verdana size=2>&nbsp;</FONT></o:p></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><FONT size=2><FONT face=Verdana>Updating it was a bit of a strange experience, the design of the application is a little odd because of some limits that F# doesn&#8217;t have any more (and perhaps a few that I just imagined it did). It was so much easier fixing the problems with the app was so much easier because of the visual studio integration. Some of the comments are still misleading, so don&#8217;t pay too much attention to them if you do down load it!<o:p></o:p></FONT></FONT></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><o:p><FONT face=Verdana size=2>&nbsp;</FONT></o:p></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><FONT size=2><FONT face=Verdana>Getting building was only really the first phase of things; next I indent to port it to a pure F#. Then I hope to improve the applications usability, and after that it&#8217;s vaguely feasible to support <A href="http://csharp21.tripod.com/ReflectorAddIns/">reflector plugs</A>, so I might have a go at implementing that.<o:p></o:p></FONT></FONT></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><o:p><FONT face=Verdana size=2>&nbsp;</FONT></o:p></SPAN></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><SPAN lang=EN-GB style="mso-ansi-language: EN-GB"><FONT size=2><FONT face=Verdana>In the mean time probably the largest F# code base available, <A href="http://www.strangelights.com/fsharp/callgraph.aspx">so enjoy</A>!<o:p></o:p></FONT></FONT></SPAN></P>

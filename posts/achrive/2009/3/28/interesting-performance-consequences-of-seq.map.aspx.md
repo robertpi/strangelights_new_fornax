@@ -1,0 +1,78 @@
+---
+title: "Interesting performance Consequences of Seq.map"
+date: 2009-03-28T19:06:27.1200000
+draft: false
+---
+
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">It’s fairly well know that Sequences or “seq”, the short hand for IEnumerable, are lazy. This has some interesting performance consequence I had not considered until recently. When we execute a line like:</font></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; COLOR: blue; FONT-SIZE: 10pt; mso-no-proof: yes">let</span><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"> lotsOfInts = Seq.map (<span style="COLOR: blue">fun</span> x <span style="COLOR: blue">-&gt;</span> x + 1) (seq { 1 .. 1000000 })</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">The command executes almost instantaneously, despite the fact we’re creating a list of a million integers (Real: 00:00:00.001, CPU: 00:00:00.000 on my PC). <span style="mso-spacerun: yes"> </span>This is because everything is lazy; no actual work is done till the list is enumerated. Executing a command like: </font></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; COLOR: blue; FONT-SIZE: 10pt; mso-no-proof: yes">let</span><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"> lotsOfInts' = List.of_seq lotsOfInts</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">Takes a significant amount of time (Real: 00:00:01.107, CPU: 00:00:01.076 for me), because we turn the lazy collection into a concrete collection. This is often pretty much what we want, not to do any work until we need to enumerate the collection. The thing to beware of is that we do this work every time we enumerate the collection. This may be desirable for some times of collection, for example say something that reads from a file of data base that’s like to change between enumerations. But there’s also a class of problem were this is highly undesirable. Consider the following code:</font></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; COLOR: blue; FONT-SIZE: 10pt; mso-no-proof: yes">let</span><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"> <span style="COLOR: blue">rec</span> loop seq iteration =<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> timer = <span style="COLOR: blue">new</span> System.Diagnostics.Stopwatch()<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span>timer.Start()<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> seq' = Seq.map (<span style="COLOR: blue">fun</span> x <span style="COLOR: blue">-&gt;</span> x + 1) seq<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> list = List.of_seq seq'<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span>printfn <span style="COLOR: maroon">"Interation: %i time: %i"</span> iteration timer.ElapsedMilliseconds<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">if</span> iteration &lt; 10 <span style="COLOR: blue">then<o:p /></span></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">        </span>loop seq' (iteration + 1)<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><o:p> </o:p></span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes">loop (seq { 1 .. 1000000 }) 0</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">Each iteration will take longer than the last, as each time “</font><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes">List.of_seq seq</span><font size="3">” is execute the sequence is recursively reiterated. I get the following results on my computer:</font></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 0 time: 953<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 1 time: 919<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 2 time: 1151<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 3 time: 1857<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 4 time: 1528<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 5 time: 2041<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 6 time: 1820<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 7 time: 2341<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 8 time: 2300<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 9 time: 2747<o:p /></span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 10 time: 2673</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3"><span style="mso-spacerun: yes"> </span>It’s trivial to fix this problem, simply use the “Seq.cache” function:</font></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; COLOR: blue; FONT-SIZE: 10pt; mso-no-proof: yes">let</span><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"> <span style="COLOR: blue">rec</span> loop' seq iteration =<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> timer = <span style="COLOR: blue">new</span> System.Diagnostics.Stopwatch()<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span>timer.Start()<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> seq' = Seq.cache (Seq.map (<span style="COLOR: blue">fun</span> x <span style="COLOR: blue">-&gt;</span> x + 1) seq)<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">let</span> list = List.of_seq seq<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span>printfn <span style="COLOR: maroon">"Interation: %i time: %i"</span> iteration timer.ElapsedMilliseconds<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">    </span><span style="COLOR: blue">if</span> iteration &lt; 10 <span style="COLOR: blue">then<o:p /></span></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><span style="mso-spacerun: yes">        </span>loop' (seq' :&gt; seq&lt;_&gt;) (iteration + 1)<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes"><o:p> </o:p></span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 10pt; mso-no-proof: yes">loop' (seq { 1 .. 1000000 }) 0</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">Which gives the following results:</font></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 0 time: 1014<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 1 time: 2337<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 2 time: 2303<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 3 time: 2294<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 4 time: 2506<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 5 time: 2343<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 6 time: 2449<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 7 time: 2075<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 8 time: 2242<o:p /></span></p>
+<p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 0pt; mso-layout-grid-align: none" class="MsoNormal"><span style="FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 9 time: 2370<o:p /></span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><span style="LINE-HEIGHT: 115%; FONT-FAMILY: &quot;Courier New&quot;; FONT-SIZE: 8pt; mso-no-proof: yes">Interation: 10 time: 2107</span></p>
+<p style="MARGIN: 0cm 0cm 10pt" class="MsoNormal"><font size="3">(Of course in this case it’s probably easier to password the concrete list we’ve already created, but in most places you’ll want to use “Seq.cache”)</font></p>
+
+### Feedback:
+
+*Feedback was imported from my only blog engine, it's no longer possible to post feedback here.*
+
+**re: Interesting performance Consequences of Seq.map - kot**
+
+typo?<br />&quot;Executing a command like:<br /><br />&lt;&lt; what? &gt;&gt;<br /><br />Takes a....&quot;
+
+**re: Interesting performance Consequences of Seq.map - [Robert Pickering](http://strangelights.com/blog/Default.aspx)**
+
+Yes, rather unfortunate typo (well copy &amp; paste error), should have read:<br /><br />let lotsOfInts' = List.of_seq lotsOfInts<br /><br />Fixed now.
+
+**re: Interesting performance Consequences of Seq.map - [Amanda Laucher](http://pandamonial.com/)**
+
+I think another copy paste error. Typing blogs can suck :) (Blog comments also!)<br /><br />let rec loop' seq iteration =<br />    let timer = new System.Diagnostics.Stopwatch()<br />    timer.Start()<br />    let seq' = Seq.cache (Seq.map (fun x -&gt; x + 1) seq)<br />    let list = List.of_seq seq'<br />    printfn &quot;Interation: %i time: %i&quot; iteration timer.ElapsedMilliseconds<br />    if iteration &lt; 10 then<br />        loop' seq' (iteration + 1)<br /><br />loop' (seq { 1 .. 1000000 }) 0
+
+**re: Interesting performance Consequences of Seq.map - [Robert Pickering](http://strangelights.com/blog/Default.aspx)**
+
+Thanks for the correction Amanda, glad some ones paying attention! Add the missing prime in line now.
+

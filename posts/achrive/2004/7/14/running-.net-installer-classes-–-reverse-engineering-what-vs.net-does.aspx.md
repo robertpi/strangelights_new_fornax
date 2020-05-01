@@ -1,0 +1,94 @@
+---
+title: "Running .NET installer classes – Reverse engineering what VS.NET does"
+date: 2004-07-14T21:01:00.0000000
+draft: false
+---
+
+<FONT face=Arial size=2>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"> </P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">Rob Mensching has been promising to put an updated version of WiX with better written documentation on sourceforget.net for a while now. But at the time of writing the May 27th build is still the latest one. But do you know what? I&#8217;m beginning not to care. I&#8217;m actually getting to the point where I can do anything I want: though the gifts of dark and orca (for examining what&#8217;s going on in an msi) and virtual pc for an easy way to test roll outs.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:office" /><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">After the epic that was finding out how to ngen stuff as part of an MSI I moved on to trying to automate other parts of our deployment process. This means running the installer classes inside the .NET assemblies. While could have used the same approach as ngen added a CustomAction that called InstallUtil with the correct parameters, I wanted to see if it was possible to call the install classes directly from the MSIs.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">I started off with the assumption that if it was possible to call install classes directly from an MSI then this is what visual studio generated MSI would do. Anyway visual studio generated MSI do not call the install class directly, but they don&#8217;t make a call to installutil.exe either; so I thought I&#8217;d explain here what they do. I guess this doesn&#8217;t prove that it isn&#8217;t possible to call installer classes directly, so if any one has a way of doing this I&#8217;d be interested to here.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">While anyone could of course use dark to reverse engineer a visual studio generated assembly for themselves, there are a few little pit falls that make it quite tricky. Also visual studio produced installers look pretty yucky when reverse engineered from dark because of the auto-generated ids. So I thought it might be worth a blog entry anyway.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">When visual studio creates an msi with a custom action it embeds 3 binary streams into the binary table. You can use dark with the &#8211;x switch to get both the syntax for embedding these and the streams themselves. Below is shown the syntax for adding them to the binary table. These binaries provide a sort of installutil like functionality that can be embedded into the MSI. While only InstallUtil is directly involved in running the installer class, the other two are required as either libraries or to set up some temporary files required by the InstallUtil.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;Binary Id="InstallUtil" src="Binary\InstallUtil.ibd" /&gt;<o:p></o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;Binary Id="MSVBDPCADLL" src="Binary\MSVBDPCADLL.ibd" /&gt;<o:p></o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;Binary Id="VSDNETCFG" src="Binary\VSDNETCFG.ibd" /&gt;<o:p></o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">Running the installer class requires two CustomActions tags. One CustomAction sets up a property which will form the parameter to the call to the InstallUtil then the second custom action class actually call the InstallUtil. The syntax is shown below, the most important bit is the Value attribute, get this wrong and the installUtil will throw an error, most likely a cryptic one. </P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;CustomAction Id="TestInstaller.dllInstall.install.SetProperty" Property="TestInstaller.dllInstall.install" Value="/installtype=notransaction /action=install /LogFile= &amp;quot;[#TestInstaller.dllFile]&amp;quot; &amp;quot;[VSDFxConfigFile]&amp;quot;" /&gt;</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">The &amp;quot;[#TestInstaller.dllFile]&amp;quot; section of the value is arguably the most important bit. The &#8220;TestInstaller.dllFile&#8221; should be the id of the File tag that contains the installer class you whish to run.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">I&#8217;ve tried removing the &amp;quot;[VSDFxConfigFile]&amp;quot; section as I couldn&#8217;t work out where this was coming from, an therefore thought it was wall dressing. But the InstallUtil will not work with out it. The properties value is actually set up by the custom action shown below.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;CustomAction Id="SetPrereqs" BinaryKey="MSVBDPCADLL" DllEntry="CheckFX" /&gt;</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">The custom action that actually runs the InstallUtil is given below. The one thing that slightly unclear to me is why the parameter created in the TestInstaller.dllInstall.install.SetProperty is passed to the InstallUtil. I&#8217;m guessing that it&#8217;s because the CustomAction and the Property share the same name, but I&#8217;m not completely sure.</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><o:p>&nbsp;</o:p></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&lt;CustomAction Id="TestInstaller.dllInstall.install" BinaryKey="InstallUtil" DllEntry="ManagedInstall" Execute="deferred" /&gt;</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt">&nbsp;</P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><FONT face=Arial size=2>And that about it, the rest is stuff I&#8217;ve coved before. I&#8217;ve gone to town on the <A href="http://www.strangelights.com/download.aspx?url=/blog/downloads/RunInstaller.zip">example</A>, there is a c# source file included that creates a .dll with an installer class, so the wxs source file should compile, link and run no problem.</FONT></P></FONT><FONT face=Arial size=2></FONT>
+
+### Feedback:
+
+*Feedback was imported from my only blog engine, it's no longer possible to post feedback here.*
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Per Bergland](http://www.carmenta.se)**
+
+Since you've dived heavily into this, can you understand why, if the same binary installer class assembly is used as a custom action twice from two different locations (in my case in two different merge modules), installutil runs the &quot;first&quot; assembly twice, thereby causing me headache, overwriting the install state and also not allowing me to use the assembly's codebase to figure out where I'm being installed.<br><br>The installer log seems A-OK in the SetProperty call, but the dll path that it sets isn't used:<br>i.e. excerpts from the log file<br><br>Property(S): _0BE99E77_3C01_420F_A33F_846759DD7199.install = /installtype=notransaction /action=install /LogFile=webserviceinstall.log /Verbose /TARGETDIR=.. /DEFAULTDOC=SpaceService20.asmx /VDIR=XXSpaceWeb /DEFVDIR=SpaceWeb &quot;C:\Program Files\Carmenta\SpaceWeb2\SpaceWeb Web Service\SpaceWeb Web Service\bin\Carmenta.VDirInstaller.dll&quot; &quot;C:\DOCUME~1\pebe_p\LOCALS~1\Temp\CFG4626.tmp&quot;<br><br>Property(S): _8FF9ED89_DD8F_41A8_94B9_70FB394F142E.install = /installtype=notransaction /action=install /LogFile=demositeinstall.log /Verbose /TARGETDIR=.. /DEFAULTDOC=default.asp /VDIR=XXSpaceWebDemoSite /DEFVDIR=SpaceWebDemoSite &quot;C:\Program Files\Carmenta\SpaceWeb2\Samples\SpaceWebDemoSite\bin\Carmenta.VDirInstaller.dll&quot; &quot;C:\DOCUME~1\pebe_p\LOCALS~1\Temp\CFG4626.tmp&quot;<br><br>The dll path set last is used for the first install as well...
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Per Bergland](http://www.carmenta.se)**
+
+And I think I found the cause of the problem 5 minutes later:<br><br>***************<br>An entry from David Levine at <a target="_new" href="http://blogs.msdn.com/astebner/archive/2004/06/06/149713.aspx">http://blogs.msdn.com/astebner/archive/2004/06/06/149713.aspx</a>:<br><br>2. Windows installer itself has bugs in how it invokes custom actions. It works great if you run the install or uninstall as completely separate operations, but if you try to use the automatic uninstall/install feature you are in for a nasty surprise. The current implementation creates a single appdomain (the default) out of which it runs all custom actions in managed code, and it never recycles the appdomain. That means that once you load an assembly it stays loaded. This means that if an old assembly runs an uninstall routine, then when the newer version of it is copied to the target, instead of running the install custom action in the new assembly you will actually run the install CA in the old assembly.<br><br>***************<br>I.e. I must have two different binaries (different names or different strongnames).<br>This truly and deeply sucks.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Robert Pickering](http://www.strangelights.com)**
+
+Glad you found an explaination, I was completely unware of that bug.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Mike Green](http://www.ferrysoft.com)**
+
+This is a great insight into running installer classes. Do you know anyway of generating the necessary .ibd files without using Visual Studio?<br><br>I'm trying to get installer classes running using WiX and only the .NET Framework SDK 1.1 with an app developed in Visual Basic.<br><br>Thanks in advance.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Robert Pickering](http://www.strangelights.com)**
+
+It appears that ibd streams can be encoded and decoded with the commandline tool &quot;msidb.exe&quot; [1] which is part of the installer platform SDK. However it doesn't look to intuitive to use and I after a quick glance I can't see a switch that you need to choose to convert a .dll to .ibd. Having said that I think .ibd I'm talking about were create specifically for visual studio so might not be able to get a copy of the orginal dlls with out visual studio. <br><br>What I did was once I'd used dark.exe (part of WiX) with -x to extract the .ibd files is place them in the our source repository so the build server had access to them. I guess theres arguments against putting binary files inside you're souce control system, but I think it's okay under some circumstances (and this is one of them).<br><br>Having said all that I'm now moving away form using this technique to run instaler classes. This is because I try to install a service and discovered that doing it this way didn't allow me to specific a username and password switches. I now tend to run the installutil.exe in a very similar way to how I described running the ngen tool. You get annoying cmd shell window popping up in the middle of you're install but I can live with that.<br><br>[1] <a target="_new" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/msidb_exe.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/msidb_exe.asp</a>
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Mike Green](http://isleofblogs.blogspot.com/)**
+
+Thanks for that. After further investigation, I've concluded that the .ibd files are probably simply the original binary files with different names. InstallUtil.ibd is InstallUtil.dll from the .NET Framework SDK. I'm guessing that the other two are native to Visual Studio 2003. Probably MSVBDPCADLL is MSVBDPCA.DLL and VSDNETCFG is VSDNET.CFG. I've picked up all three files from an available .msi using dark.exe -x to extract them. I've also discovered that InstallUtil.dll is different between the .NET Framework SDK 1.0 and 1.1 so care is needed to use the right one. Visual Studio 2002 installation packages only seem to use InstallUtil.ibd and not the other two.<br><br>I've suggested that WiX incorporate these aspects of Windows Installer packages in some form but only time will tell whether Rob Mensching decides to take this forward.<br><br>I haven't tried installing a service with a specific username/password but surely you can do it with ServiceProcessInstaller.Account ServiceProcessInstaller.Username and ServiceProcessInstaller.Password can't you?
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Robert Pickering](http://www.strangelights.com)**
+
+Thanks for the info about where the ibd files come from I had often wondered but never bothered to find out.<br><br>You can set the account an a service is installed under via ServiceProcessInstaller.Account ServiceProcessInstaller.Username, but the installer class for this project exposes them via /username and /password switch, which can be read ServiceProcessInstaller.Conext.Parameters, but using InstallUtil.dll doesn't seem to populate the Parameters collection correctly. Then again it could have been something I was doing wrong as I didn't spent too long trying to get it working, as I was already fairly fed up by this point.<br>
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Mike Green](http://isleofblogs.blogspot.com/)**
+
+I think I was slightly wrong about the original file names. I now think MSVBDPCADLL.ibd derives from DPCA.DLL and VSDNETCFG.ibd might be built on-the-fly as its a .config file that is editable with a text editor.<br><br>Rob Mensching has rejected my suggestion to build InstallUtil capability into WiX with a cryptic comment about avoiding using InstallUtil in Windows Installer packages. I'm hoping he will elaborate on why he thinks it isn't a good idea to use InstallUtil in the next few days.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Adar Wesley](http://mailto:Adar DOT Wesley AT Verint DOT com)**
+
+Great description of what happens.  I have been investigating this for the passed few days, and this helped me fill in some gaps.<br><br>One point you left open in the original post is:<br>&gt;&gt;The one thing that slightly unclear to me <br>&gt;&gt;is why the parameter created in the <br>&gt;&gt;TestInstaller.dllInstall.install.SetProperty <br>&gt;&gt;is passed to the InstallUtil. I’m guessing <br>&gt;&gt;that it’s because the CustomAction and the <br>&gt;&gt;Property share the same name, but I’m not <br>&gt;&gt;completely sure.<br><br>Your assumpsion is correct!<br>In order to pass Installer Property values to a deferred CustomAction, you set a propety with the same name as the CustomAction in &quot;Execute Immediate&quot; mode.<br>When the deferred CustomAction is executed, the value is available to the CustomAction through the CustomActionData property.<br><br>I found the clearest explanation for this behavior in the &quot;Wise For Windows Installer&quot; Help file.<br><br>Search for: &quot;Tips on Calling .DLLs&quot;<br>Find the Section:<br>&quot;Accessing Windows Installer Properties from a Custom Action&quot;<br><br>Begin Quote:<br>------------<br>For the Call Custom DLL actions, in the User Interface or Execute Immediate sequences, you can send Windows Installer properties to the .DLL function as parameters. The property's current value is passed to the function and, if the function changes that value, the new value is put into the corresponding property. <br><br>In the Execute Deferred sequence, you are limited in the number of properties you can access. You can only access these properties from a custom action in deferred mode: UserSID, CustomActionData, and ProductCode. CustomActionData is filled with the property value of any Windows Installer property that shares the same name with the Custom Action. See the topic titled Obtaining Context Information for Deferred Execution Custom Actions in the Windows Installer SDK Help. <br>----------<br>End Quote:<br> <br><br>
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Oleg Zelenkov](http://zelenkov.com)**
+
+The ManagedInstall() function is defined in the %FrameworkDir%\%FrameworkVersion%\InstallUtilLib.dll<br><br>While it is desirable to have an ability to invoke InstallUtil.exe from MSI, I would not want to find it amongst WiX custom actions. I'd rather expect this feature from the MSI team. I think a new action is to be introduced. That would save time and solve bugs once and for all.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - Tim**
+
+Please help me and tell me how to get MSVBDPCADLL.dll file<br><br>Regards,<br>Timothy.asir@mindteck.com
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [karl oyun](http://www.oyun27.com/)**
+
+hi,<br /><br />these CAs seem to be native to VS.NET and therefore are not suported. What this means is basically that VS needs them for managing virtual directories in its web projects and you are not suppose to use them on your own. But again, who cares what is allowed and whats not... take a look here http://nant.sourceforge.net/wiki/index.php...%20build%20file <br />That is a nice example of using all the WEBCA actions, their meaning is in their names i think...<br /><br />As for the others, my guess is:<br /><br />DIRCA_CheckFX - checks if .NET framework is installed on the target machine<br /><br />VSDCA_VsdLaunchConditions - same as LaunchConditions, but checks for specific VS.NET components.<br /><br />ERRCA_UIANDADVERTISED - checks if the product is advertised. if it is, it will prevent execution of the installation in full UI mode<br /><br />ERRCA_CANCELNEWERVERSION - cancel installation if the newer version is detected (typically executed after FindRelatedProducts action).<br /><br />There is no such thing as MSVBDPCADLL.DLL, instead you should be looking for MSVBDPCA.DLL (http://www.biacreations.com/MSVBDPCA.DLL) as MSVBDPCADLL is just a handle to the file.
+
+**re: Running .NET installer classes – Reverse engineering what VS.NET does - [Reverse engineer](http://www.surfdev.com/reverse.php)**
+
+I like this a lot, l work in reverse engineering.
+
