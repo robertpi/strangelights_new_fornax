@@ -32,6 +32,27 @@ html,body {
       line-height: 1.9;
       margin: 15px 0;
   }
+  #check:checked ~ label #cover{
+    display:block;
+    }
+  #cover{
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    }
+  #box{
+    position:absolute;
+    top: -30px;
+    left: 50%;
+    width: 600px;
+    height: 600px;
+    margin-left: -300px;
+    border:10px solid white;
+    }
   .author-image {
       position: absolute;
       top: -30px;

@@ -21,7 +21,7 @@ let generate' (ctx : SiteContents) (_: string) =
     |> Seq.sortByDescending Layout.published
     |> Seq.toList
     |> List.chunkBySize 10
-    |> List.map (List.map (Layout.postLayout true))
+    |> List.map (List.map (Layout.postLayout true siteInfo))
 
   let pages = List.length psts
 

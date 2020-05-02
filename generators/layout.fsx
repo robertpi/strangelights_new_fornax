@@ -85,23 +85,61 @@ let published (post: Postloader.Post) =
     |> Option.defaultValue System.DateTime.Now
     |> fun n -> n.ToString("yyyy-MM-dd")
 
-let postLayout (useSummary: bool) (post: Postloader.Post) =
+let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (post: Postloader.Post) =
+    let socialMediaSquare urlBase username squarename =
+      a [Href (sprintf "https://%s/%s" urlBase username )] [
+          i [Class (sprintf "fa fa-%s fa-3x" squarename) ] [] ]
+
+    let mediaHeader (siteInfo: Globalloader.SiteInfo) =
+      div [] [
+        match siteInfo.imageThumb with
+        | Some path ->
+            let displayNone  = HtmlProperties.Style [Display "none"; ]
+            yield input [Type "checkbox"; Id "check"; displayNone ]
+            yield label [Custom("for", "check" )] [
+              img [ Class "author-image"; Src path ] ]
+            match siteInfo.imageLarge with
+            | Some path ->
+              yield label [Custom("for", "check" )] [
+                div [Id "cover"] [
+                  div [Id "box"] [ img [ Class "author-image-large"; Src path ] ] ] ]
+            | None -> ()
+        | None -> ()
+
+        yield p [] [
+          match siteInfo.linkedin with
+          | Some linkedin ->
+              yield socialMediaSquare "linkedin.com/in" linkedin "linkedin-square"
+          | None -> ()
+          match siteInfo.github with
+          | Some github ->
+              yield socialMediaSquare "github.com" github "github-square"
+          | None -> ()
+          match siteInfo.twitter with
+          | Some twitter ->
+              yield socialMediaSquare "twitter.com" twitter "twitter-square"
+          | None -> ()
+          match siteInfo.facebook with
+          | Some facebook ->
+              yield socialMediaSquare "facebook.com" facebook "facebook-square"
+          | None -> ()
+          match siteInfo.instagram with
+          | Some facebook ->
+              yield socialMediaSquare "instagram.com" facebook "instagram"
+          | None -> () ]
+      ]
+
     div [Class "card article"] [
         div [Class "card-content"] [
             div [Class "media-content has-text-centered"] [
-                p [] [ img [ Class "author-image"; Src "/images/266A7910.jpg" ] ]
-                p [] [
-                  i [Class "fa fa-twitter-square fa-3x"; ] []
-                  i [Class "fa fa-github-square fa-3x"; ] []
-                  i [Class "fa fa-linkedin-square fa-3x"; ] []
-                  i [Class "fa fa-facebook-square fa-3x"; ] []
-                  i [Class "fa fa-instagram fa-3x"; ] []]
-
-                p [Class "title article-title"; ] [ a [Href post.link] [!! post.title]]
-                p [Class "subtitle is-6 article-subtitle"] [
-                a [Href "#"] [!! (defaultArg post.author "")]
-                !! (sprintf "on %s" (published post))
-                ]
+              match siteInfoOpt with
+              | Some siteInfo ->
+                  yield mediaHeader siteInfo
+              | None -> ()
+              yield p [Class "title article-title"; ] [ a [Href post.link] [!! post.title]]
+              yield p [Class "subtitle is-6 article-subtitle"] [
+              yield a [Href "#"] [!! (defaultArg post.author "")]
+              yield !! (sprintf "on %s" (published post)) ]
             ]
             div [Class "content article-body"] [
                 !! (if useSummary then post.summary else post.content)

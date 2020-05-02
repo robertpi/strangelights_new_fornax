@@ -13,6 +13,10 @@ let generate' (ctx : SiteContents) (page: string) =
         |> Seq.find (fun n -> n.file = System.Web.HttpUtility.UrlDecode(page))
 
     let siteInfo = ctx.TryGetValue<Globalloader.SiteInfo> ()
+    let title =
+        siteInfo
+        |> Option.map (fun si -> si.title)
+        |> Option.defaultValue ""
     let desc =
         siteInfo
         |> Option.map (fun si -> si.description)
@@ -22,14 +26,15 @@ let generate' (ctx : SiteContents) (page: string) =
         section [Class "hero is-info is-medium is-bold"] [
             div [Class "hero-body"] [
                 div [Class "container has-text-centered"] [
-                    h1 [Class "title"] [!!desc]
+                    h1 [Class "title"] [!!title]
+                    h4 [Class "title"] [!!desc]
                 ]
             ]
         ]
         div [Class "container"] [
             section [Class "articles"] [
                 div [Class "column is-8 is-offset-2"] [
-                    Layout.postLayout false post
+                    Layout.postLayout false siteInfo post
                 ]
             ]
         ]
