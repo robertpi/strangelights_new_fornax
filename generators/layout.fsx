@@ -88,7 +88,7 @@ let published (post: Postloader.Post) =
 let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (post: Postloader.Post) =
     let socialMediaSquare urlBase username squarename =
       a [Href (sprintf "https://%s/%s" urlBase username )] [
-          i [Class (sprintf "fa fa-%s fa-3x" squarename) ] [] ]
+          i [Class (sprintf "fa fa-%s fa-1x" squarename) ] [] ]
 
     let mediaHeader (siteInfo: Globalloader.SiteInfo) =
       div [] [
@@ -106,7 +106,7 @@ let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (
             | None -> ()
         | None -> ()
 
-        yield p [] [
+        yield p [Class "title"] [ span [Class "transparent-backgroud"] [
           match siteInfo.linkedin with
           | Some linkedin ->
               yield socialMediaSquare "linkedin.com/in" linkedin "linkedin-square"
@@ -126,7 +126,7 @@ let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (
           match siteInfo.instagram with
           | Some facebook ->
               yield socialMediaSquare "instagram.com" facebook "instagram"
-          | None -> () ]
+          | None -> () ] ]
       ]
 
     div [Class "card article"] [
@@ -136,14 +136,21 @@ let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (
               | Some siteInfo ->
                   yield mediaHeader siteInfo
               | None -> ()
-              yield p [Class "title article-title"; ] [ a [Href post.link] [!! post.title]]
+              yield p [] [ !! "&nbsp;"]
+              yield p [Class "title article-title"; ] [ span [Class "transparent-backgroud"] [a [Href post.link] [!! post.title]]]
               yield p [Class "subtitle is-6 article-subtitle"] [
               yield a [Href "#"] [!! (defaultArg post.author "")]
-              yield !! (sprintf "on %s" (published post)) ]
+              yield !! (sprintf "Published: %s" (published post)) ]
             ]
             div [Class "content article-body"] [
                 !! (if useSummary then post.summary else post.content)
 
             ]
+            if useSummary then
+              div [Class "content article-body"] [
+                a [Href post.link] [!! "Continue reading ..."]
+              ]
+            else
+              div [] []
         ]
     ]

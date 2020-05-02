@@ -67,7 +67,8 @@ let getContent (fileContent : string) =
             let summary, _ = content |> Array.splitAt indexOfSummary
             summary, content
         | None ->
-            content, content
+            let summary, _ = content |> Array.splitAt (min content.Length 5)
+            summary, content
 
     let summary = summary |> Array.skip 1 |> String.concat "\n"
     let content = content |> Array.skip 1 |> String.concat "\n"

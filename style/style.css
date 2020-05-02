@@ -68,8 +68,19 @@ html,body {
     margin-bottom: 1rem;
   }
   .media-content {
-    margin-top: 3rem;
+    background: black;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.25em;
+    padding-bottom: 1rem;
   }
+  a {
+    color: black;
+  }
+  a:hover {
+    color: gray;
+  }
+
   .article, .promo-block {
     margin-top: 6rem;
   }
