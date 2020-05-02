@@ -3,6 +3,13 @@ html,body {
     font-size: 14px;
     background: #F0F2F4;
   }
+  .share-text {
+    color: white;
+    font-weight: bold;
+    font-size: 1.11rem;
+    vertical-align: middle;
+    height: 32px;
+  }
   .navbar.is-white {
     background: #F0F2F4;
   }
@@ -15,7 +22,7 @@ html,body {
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
-  height: 500px;
+  height: 300px;
   }
   .transparent-backgroud {
     padding-left: 2em;

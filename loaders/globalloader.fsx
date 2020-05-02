@@ -1,8 +1,10 @@
 #r "../_lib/Fornax.Core.dll"
 
 type SiteInfo = {
+    baseUrl: string
     title: string
     description: string
+    imageSocialMediaPreview: string option
     imageThumb: string option
     imageLarge: string option
     linkedin: string option
@@ -14,8 +16,10 @@ type SiteInfo = {
 
 let loader (projectRoot: string) (siteContent: SiteContents) =
     let siteInfo =
-        { title = "Strangelights";
+        { baseUrl = "http://www.strangelights.com"
+          title = "Strangelights";
           description = "Another tech blog."
+          imageSocialMediaPreview = Some "/images/winter-macro-0266.jpg"
           imageThumb = Some "/images/266A7910_small.jpg"
           imageLarge = Some "/images/266A7910_large.jpg"
           linkedin = Some "robertpickering"

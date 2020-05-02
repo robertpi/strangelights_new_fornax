@@ -6,15 +6,6 @@ open Html
 let generate' (ctx : SiteContents) (_: string) =
   let posts = ctx.TryGetValues<Postloader.Post> () |> Option.defaultValue Seq.empty
   let siteInfo = ctx.TryGetValue<Globalloader.SiteInfo> ()
-  let title =
-    siteInfo
-    |> Option.map (fun si -> si.title)
-    |> Option.defaultValue ""
-
-  let desc =
-    siteInfo
-    |> Option.map (fun si -> si.description)
-    |> Option.defaultValue ""
 
   let psts =
     posts
@@ -41,14 +32,7 @@ let generate' (ctx : SiteContents) (_: string) =
       else "/" + getFilenameForIndex (i - 1)
 
     Layout.layout ctx "Home" [
-      section [Class "hero is-info is-medium is-bold"] [
-        div [Class "hero-body"] [
-          div [Class "container has-text-centered"] [
-            h1 [Class "title"] [ span [Class "transparent-backgroud"] [!!title] ]
-            h3 [] [ span [Class "transparent-backgroud"] [!!desc] ]
-          ]
-        ]
-      ]
+      Layout.titleSegment siteInfo
       div [Class "container"] [
         section [Class "articles"] [
           div [Class "column is-8 is-offset-2"] psts
@@ -64,8 +48,9 @@ let generate' (ctx : SiteContents) (_: string) =
 
   psts
   |> List.mapi (fun i psts ->
-    getFilenameForIndex i,
-    layoutForPostSet i psts
+    let name = getFilenameForIndex i
+    name,
+    layoutForPostSet i psts name None None
     |> Layout.render ctx)
 
 let generate (ctx : SiteContents) (projectRoot: string) (page: string) =

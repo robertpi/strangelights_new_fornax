@@ -73,6 +73,16 @@ let getContent (fileContent : string) =
     let summary = summary |> Array.skip 1 |> String.concat "\n"
     let content = content |> Array.skip 1 |> String.concat "\n"
 
+    let summary =
+        if summary.Length > 500 then
+            let indexOf = summary.IndexOf("</p>")
+            if indexOf > 0 then
+                summary.[.. indexOf + 4]
+            else
+                summary
+        else
+            summary
+
     Markdown.ToHtml(summary, markdownPipeline),
     Markdown.ToHtml(content, markdownPipeline)
 
