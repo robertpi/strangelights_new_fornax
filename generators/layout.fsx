@@ -52,10 +52,6 @@ let layout (ctx : SiteContents) active bodyCnt url pageTitle pageDescription =
       siteInfo
       |> Option.map (fun si -> si.title)
       |> Option.defaultValue ""
-    let desc =
-      siteInfo
-      |> Option.map (fun si -> si.description)
-      |> Option.defaultValue ""
 
     let menuEntries =
       pages
@@ -70,7 +66,7 @@ let layout (ctx : SiteContents) active bodyCnt url pageTitle pageDescription =
         let title =
             pageTitle
             |> Option.map (fun t -> sprintf "%s | %s" t siteInfo.title)
-            |> Option.defaultValue siteInfo.description
+            |> Option.defaultValue siteInfo.title
         [ yield meta [Property "og:url"; Content fullUrl ]
           yield meta [Property "og:type"; Content "article"]
           yield meta [Property "og:title"; Content title ]
@@ -200,7 +196,6 @@ let postLayout (useSummary: bool) (siteInfoOpt: option<Globalloader.SiteInfo>) (
               yield p [Class "subtitle is-6 article-subtitle"] [
               yield a [Href "#"] [!! (defaultArg post.author "")]
               yield !! (sprintf "Published: %s" (published post)) ]
-              if not useSummary then yield shareButtons post.link
             ]
             div [Class "content article-body"] [
                 !! (if useSummary then post.summary else post.content)
