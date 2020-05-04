@@ -25,7 +25,7 @@ let generate' (ctx : SiteContents) (page: string) =
         ]
     ]
 
-    Layout.layout ctx post.title body post.link (Some post.title) (Some post.summary)
+    Layout.layout ctx post.title body post.link (Some post.title) (Some post.summaryTagFree)
 
 
 let generate (ctx : SiteContents) (projectRoot: string) (page: string) =

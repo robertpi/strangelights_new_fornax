@@ -16,6 +16,7 @@ type Post = {
     tags: string list
     content: string
     summary: string
+    summaryTagFree: string
 }
 
 let contentDir = "posts"
@@ -83,6 +84,7 @@ let getContent (fileContent : string) =
         else
             summary
 
+    summary,
     Markdown.ToHtml(summary, markdownPipeline),
     Markdown.ToHtml(content, markdownPipeline)
 
@@ -93,7 +95,7 @@ let loadFile (rootDir: string) (n: string) =
     let text = File.ReadAllText n
 
     let config = getConfig text
-    let summary, content = getContent text
+    let summaryTagFree, summary, content = getContent text
 
     let chopLength =
         if rootDir.EndsWith("\\") then rootDir.Length
@@ -125,7 +127,8 @@ let loadFile (rootDir: string) (n: string) =
       published = published
       tags = tags
       content = content
-      summary = summary }
+      summary = summary
+      summaryTagFree = summaryTagFree }
 
 let loader (projectRoot: string) (siteContent: SiteContents) =
     try
