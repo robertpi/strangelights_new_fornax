@@ -81,8 +81,11 @@ html,body {
     padding-top: 0.25em;
     padding-bottom: 1rem;
   }
-  a {
+  .title a {
     color: black;
+  }
+  a {
+    color: cornflowerblue;
   }
   a:hover {
     color: gray;
