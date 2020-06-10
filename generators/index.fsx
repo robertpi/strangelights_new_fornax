@@ -9,6 +9,7 @@ let generate' (ctx : SiteContents) (_: string) =
 
   let psts =
     posts
+    |> Seq.filter (fun x -> x.draft |> not)
     |> Seq.sortByDescending Layout.published
     |> Seq.toList
     |> List.chunkBySize 10

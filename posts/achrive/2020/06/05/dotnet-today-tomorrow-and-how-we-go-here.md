@@ -8,7 +8,7 @@ Recently a conversation made me think about the current state of .NET. Someone f
 
 There are still a few nuance when it comes to cross platform support in the .NET world, but I think that's true of most development platforms today. This post aims to explain those nuances.
 
-I looked for a good post to explain the state of .NET to someone outside the .NET community, but I had trouble finding one. For example, the [Microsoft .NET blog](https://devblogs.microsoft.com/dotnet/introducing-net-5/) does a great job of explaining the changes coming up in .NET 5 to the .NET community, but it assumes that your already know the difference between .NET Framework and .NET Core which I think most people outside of .NET have no idea about.
+I looked for a good post to explain the state of .NET to someone outside the .NET community, but I had trouble finding one. For example, the [Microsoft .NET blog](https://devblogs.microsoft.com/dotnet/introducing-net-5/) does a great job of explaining the changes coming up in .NET 5 to the .NET community, but it assumes that you already know the difference between .NET Framework and .NET Core which I think most people outside of .NET have no idea about.
 
 .NET Today
 ==========
@@ -21,7 +21,7 @@ Assemblies can be created from the text form of the IL assembly language using t
 
 We'll take a quick tour of the features of the CLR and then talk about the implementations of the CLR and FCL that exist today.
 
-The usual way that code is executed in the CLR is by 'just in time' (JIT) compilation, meaning each method is compiled from byte codes to native machine code just before the method is executed. There some version of the CLR support 'ahead of time' (AOT) compilation of .NET assembles and even interpretation of IL, but the main focus of the CLR has been JIT, so AOT compilation support is not as fully developed as it might be and only fairly idiosyncratic version of the CLR offer IL interpretation.
+The usual way that code is executed in the CLR is by 'just in time' (JIT) compilation, meaning each method is compiled from byte codes to native machine code just before the method is executed. There are some version of the CLR support 'ahead of time' (AOT) compilation of .NET assembles and even interpretation of IL, but the main focus of the CLR has been JIT, so AOT compilation support is not as fully developed as it might be and only fairly idiosyncratic version of the CLR offer IL interpretation.
 
 The CLR is garbage collected environment, meaning that the programer does not need to manage the deallocation of memory directly, a garbage collector (GC) will decide whether memory is still in use or not and de-allocate it, if it detects it's not in use. Different version of the CLR have different GC algorithms, but the most commonly used one is [tracing garbage collection](https://en.wikipedia.org/wiki/Tracing_garbage_collection) with additional heuristics to try and optimize memory management in a number of different scenarios.
 
@@ -41,7 +41,7 @@ Mono            | Yes               | Windows and any *nix like OS
 
 There are other implementation of the CLR available, but these three are being actively developed and are fully supported today.
 
-While having to choose between three different implementations of the sample platform isn't ideal, it really no different than having to choose between [CPython](https://www.python.org/) and [PyPY](https://www.pypy.org/) or [GCC](https://gcc.gnu.org/), [Microsoft Visual C++](https://docs.microsoft.com/en-us/cpp/?view=vs-2019) or [Intel C](https://software.intel.com/content/www/us/en/develop/tools/compilers/c-compilers.html). 
+While having to choose between three different implementations of the sample platform isn't ideal, it is really no different than having to choose between [CPython](https://www.python.org/) and [PyPY](https://www.pypy.org/) or [GCC](https://gcc.gnu.org/), [Microsoft Visual C++](https://docs.microsoft.com/en-us/cpp/?view=vs-2019) or [Intel C](https://software.intel.com/content/www/us/en/develop/tools/compilers/c-compilers.html). 
 
 In the .NET world there is a high degree of compatibility between the three CLR implementations I talk about. The CLR implementations are now being developed with a high degree of cooperation between the teams maintaining them and are synchronizing their release cycles.
 
@@ -54,7 +54,7 @@ In terms of OS support ".NET Framework" just supports Windows, ".NET Core" suppo
 .NET Tomorrow
 =============
 
-The .NET teams have announced that in the next version of .NET there will be only two version implementations of the CLR. .NET core will renamed and .NET and the two code bases will be merged to ensure as much as possible from the .NET Framework is present in the new .NET. This will mean from the release of .NET 5, the main choice of CLR implementations will be:
+The .NET teams have announced that in the next version of .NET there will be only two version implementations of the CLR. .NET core will be renamed and .NET and the two code bases will be merged to ensure as much as possible from the .NET Framework is present in the new .NET. This will mean from the release of .NET 5, the main choice of CLR implementations will be:
 
 Name            |   Open Source     |    OS Support
 ----------------|-------------------|-----------------------
@@ -66,9 +66,11 @@ For the .NET 5 release further work will be done to make .NET and Mono more comp
 Summary
 =======
 
-We have a high level overview of what .NET is and the features that make it up. We seen that at it's core .NET is a software runtime called the CLR that will execute an abstract assembly language called IL. We've seen that the CLR is open standard with several different implementation and had a quick look at the differences between the most relevant implementations. We have seen that although one CLR implementation is closed source software and only runs on Windows, the other two major CLR implementations are fully open source and between them have support for a wide variety of OSs. The current direction of the project is towards more parts being open source.
+We have a high level overview of what .NET is and the features that make it up. We've seen that at it's core .NET is a software runtime called the CLR that will execute an abstract assembly language called IL. We've seen that the CLR is open standard with several different implementation and had a quick look at the differences between the most relevant implementations. We have seen that although one CLR implementation is closed source software and only runs on Windows, the other two major CLR implementations are fully open source and between them have support for a wide variety of OSs. The current direction of the project is towards more parts being open source.
 
 Acknowledgements
 ================
 
-I have drawn significant influence Wikipedia's [many](https://en.wikipedia.org/wiki/.NET_Framework) [articles](https://en.wikipedia.org/wiki/.NET_Core) [on](https://en.wikipedia.org/wiki/.NET_Framework_version_history) and [.NET](https://en.wikipedia.org/wiki/Common_Language_Infrastructure), I would like to thank the authors of these articles. The idea of this article was present a simplified version of the extensive details available on Wikipedia. 
+I like to thank [nieve](https://twitter.com/nieveg) and [Bouillier Clément](https://twitter.com/clem_bouillier) for their comments and corrections.
+
+I have drawn significant influence Wikipedia's [many](https://en.wikipedia.org/wiki/.NET_Framework) [articles](https://en.wikipedia.org/wiki/.NET_Core) [on](https://en.wikipedia.org/wiki/.NET_Framework_version_history) [.NET](https://en.wikipedia.org/wiki/Common_Language_Infrastructure), I would like to thank the authors of these articles. The idea of this article was present a simplified version of the extensive details available on Wikipedia. 

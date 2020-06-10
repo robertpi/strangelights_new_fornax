@@ -17,6 +17,7 @@ type Post = {
     content: string
     summary: string
     summaryTagFree: string
+    draft: bool
 }
 
 let contentDir = "posts"
@@ -112,6 +113,7 @@ let loadFile (rootDir: string) (n: string) =
     let title = config |> Map.find "title" |> trimString
     let author = config |> Map.tryFind "author" |> Option.map trimString
     let published = config |> Map.tryFind "date" |> Option.map (trimString >> System.DateTime.Parse)
+    let draft = config |> Map.tryFind "draft" |> Option.map System.Boolean.Parse |> Option.defaultValue false
 
     let tags =
         let tagsOpt =
@@ -128,7 +130,8 @@ let loadFile (rootDir: string) (n: string) =
       tags = tags
       content = content
       summary = summary
-      summaryTagFree = summaryTagFree }
+      summaryTagFree = summaryTagFree
+      draft = draft }
 
 let loader (projectRoot: string) (siteContent: SiteContents) =
     try

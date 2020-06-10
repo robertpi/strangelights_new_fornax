@@ -26,7 +26,8 @@ He has a good understanding of agile development and believes in the removal of 
           tags = []
           content =  Markdown.ToHtml(text)
           summary = text
-          summaryTagFree = text }
+          summaryTagFree = text
+          draft = false }
 
     let body = [
         Layout.titleSegment siteInfo

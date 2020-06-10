@@ -6,12 +6,20 @@ open System.IO
 let postPredicate (projectRoot: string, page: string) =
     let fileName = Path.Combine(projectRoot,page)
     let ext = Path.GetExtension page
-    ext = ".md" && page.Contains "_public" |> not
-    // if ext = ".md" then
-    //     let ctn = File.ReadAllText fileName
-    //     ctn.Contains("layout: post")
-    // else
-    //     false
+    let isMdFile = ext = ".md" && page.Contains "_public" |> not
+    if isMdFile then 
+        // hack to handle encoding issues
+        if File.Exists fileName then
+            let header = 
+                File.ReadLines fileName 
+                |> Seq.skip 1 
+                |> Seq.takeWhile (fun x -> x.StartsWith("---") |> not)
+            let shouldProcess = 
+                header |> Seq.exists (fun x -> x = "draft: true") |> not 
+            printfn "%b" shouldProcess
+            shouldProcess
+        else true
+    else false
 
 let staticPredicate (projectRoot: string, page: string) =
     let ext = Path.GetExtension page
