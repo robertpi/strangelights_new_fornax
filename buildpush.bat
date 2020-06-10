@@ -5,7 +5,7 @@ IF [%1] == [] (
 
 echo %commit_message%
 
-dotnet ..\Fornax\src\Fornax\bin\Debug\netcoreapp3.1\Fornax.dll build
+dotnet ..\Fornax\src\Fornax\bin\Release\netcoreapp3.1\Fornax.dll build
 IF NOT %ERRORLEVEL == 0 (
     EXIT /B  42
 )
